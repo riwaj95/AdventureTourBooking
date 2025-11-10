@@ -1,0 +1,207 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1-create-users
+      author: riwaj
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_users
+                    nullable: false
+              - column:
+                  name: email
+                  type: VARCHAR(254)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: password
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(150)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: users
+            columnNames: email
+            constraintName: uq_users_email
+
+  - changeSet:
+      id: 2-create-tours
+      author: riwaj
+      changes:
+        - createTable:
+            tableName: tours
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_tours
+                    nullable: false
+              - column:
+                  name: operator_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: title
+                  type: VARCHAR(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: TEXT
+              - column:
+                  name: price
+                  type: NUMERIC(10,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: location
+                  type: VARCHAR(150)
+              - column:
+                  name: max_capacity
+                  type: INTEGER
+              - column:
+                  name: available_from
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: duration_hours
+                  type: INTEGER
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            constraintName: fk_tours_operator
+            baseTableName: tours
+            baseColumnNames: operator_id
+            referencedTableName: users
+            referencedColumnNames: id
+            onDelete: RESTRICT
+        - createIndex:
+            tableName: tours
+            indexName: ix_tours_operator
+            columns:
+              - column:
+                  name: operator_id
+
+  - changeSet:
+      id: 3-create-bookings
+      author: riwaj
+      changes:
+        - createTable:
+            tableName: bookings
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_bookings
+                    nullable: false
+              - column:
+                  name: tour_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: number_of_people
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+              - column:
+                  name: total_price
+                  type: NUMERIC(10,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: booking_date
+                  type: TIMESTAMP WITHOUT TIME ZONE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            constraintName: fk_bookings_tour
+            baseTableName: bookings
+            baseColumnNames: tour_id
+            referencedTableName: tours
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            constraintName: fk_bookings_user
+            baseTableName: bookings
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - createIndex:
+            tableName: bookings
+            indexName: ix_bookings_tour
+            columns:
+              - column:
+                  name: tour_id
+        - createIndex:
+            tableName: bookings
+            indexName: ix_bookings_user
+            columns:
+              - column:
+                  name: user_id
