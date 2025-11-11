@@ -4,6 +4,7 @@ package com.project.AdventureTourBooking.controller;
 import com.project.AdventureTourBooking.dto.BookingRequest;
 import com.project.AdventureTourBooking.dto.BookingResponse;
 import com.project.AdventureTourBooking.model.Booking;
+
 import com.project.AdventureTourBooking.service.BookingService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;

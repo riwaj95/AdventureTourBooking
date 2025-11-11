@@ -13,7 +13,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/tours")
-@Validated
 public class TourController {
 
     private final TourService tourService;
