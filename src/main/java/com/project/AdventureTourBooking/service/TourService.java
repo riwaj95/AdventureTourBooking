@@ -42,8 +42,8 @@ public class TourService {
     }
 
     @Transactional
-    public Tour createTour(TourRequest request) {
-        User operator = getOperator(request.operatorId());
+    public Tour createTour(TourRequest request, Long operatorId) {
+        User operator = getOperator(operatorId);
 
         Tour tour = new Tour();
         tour.setOperator(operator);
@@ -53,6 +53,7 @@ public class TourService {
         tour.setLocation(request.location());
         tour.setMaxCapacity(request.maxCapacity());
         tour.setDurationHours(request.durationHour());
+        tour.setAvailableFrom(request.availableFrom());
 
         return tourRepository.save(tour);
     }
