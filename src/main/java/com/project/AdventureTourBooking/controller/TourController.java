@@ -2,11 +2,15 @@ package com.project.AdventureTourBooking.controller;
 
 import com.project.AdventureTourBooking.dto.TourRequest;
 import com.project.AdventureTourBooking.dto.TourResponse;
-import com.project.AdventureTourBooking.model.Tour;
+import com.project.AdventureTourBooking.security.CustomUserDetails;
 import com.project.AdventureTourBooking.service.TourService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
 import java.util.List;
@@ -30,20 +34,29 @@ public class TourController {
 
     @GetMapping("/{id}")
     public TourResponse getTourById(@PathVariable Long id) {
-        Tour tour = tourService.getTourById(id);
-        return TourResponse.fromEntity(tour);
+        return TourResponse.fromEntity(tourService.getTourById(id));
     }
 
     @GetMapping("/operators/{operatorId}")
-    public List<TourResponse> getToursByOperator(@PathVariable Long operatorId) {
+    @PreAuthorize("hasRole('OPERATOR')")
+    public List<TourResponse> getToursByOperator(@PathVariable Long operatorId, Authentication authentication) {
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        if (!principal.getId().equals(operatorId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Operators can only view their own tours");
+        }
         return tourService.getToursByOperator(operatorId).stream()
                 .map(TourResponse::fromEntity)
                 .toList();
     }
 
     @PostMapping
-    public ResponseEntity<TourResponse> createTour(@RequestBody TourRequest request) {
-        Tour created = tourService.createTour(request);
+    @PreAuthorize("hasRole('OPERATOR')")
+    public ResponseEntity<TourResponse> createTour(
+            @Valid @RequestBody TourRequest request,
+            Authentication authentication
+    ) {
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        var created = tourService.createTour(request, principal.getId());
         TourResponse response = TourResponse.fromEntity(created);
         return ResponseEntity
                 .created(URI.create("/api/tours/" + response.id()))
