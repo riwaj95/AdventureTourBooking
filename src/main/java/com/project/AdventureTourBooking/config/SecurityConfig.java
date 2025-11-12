@@ -3,6 +3,7 @@ package com.project.AdventureTourBooking.config;
 import com.project.AdventureTourBooking.security.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -30,13 +31,15 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/tours", "/api/tours/**").permitAll()
-                        .requestMatchers("/api/bookings/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/tours", "/api/tours/**").hasAnyRole("CUSTOMER", "OPERATOR")
+                        .requestMatchers("/api/tours/**").hasRole("OPERATOR")
+                        .requestMatchers(HttpMethod.POST, "/api/bookings/**").hasRole("CUSTOMER")
+                        .requestMatchers("/api/bookings/**").hasRole("OPERATOR")
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
                 .httpBasic(httpBasic -> {})
-                .formLogin(form -> form.disable());
+                .formLogin(form -> {});
         return http.build();
     }
 
