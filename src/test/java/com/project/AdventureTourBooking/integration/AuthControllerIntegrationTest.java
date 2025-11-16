@@ -38,11 +38,6 @@ class AuthControllerIntegrationTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @AfterEach
-    void tearDown() {
-        userRepository.deleteAll();
-    }
-
     @Test
     void registerUser_persistsAndReturnsAuthResponse() throws Exception {
         RegisterRequest request = new RegisterRequest(
