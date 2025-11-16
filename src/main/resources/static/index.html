@@ -66,63 +66,8 @@
                     <dd class="tour-duration"></dd>
                 </div>
             </dl>
-            <button class="tour-button" type="button">View details</button>
         </article>
     </template>
-
-    <section id="tourDetail" class="tour-detail hidden" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
-        <div class="tour-detail__panel">
-            <button id="detailClose" class="detail-close" type="button" aria-label="Close details">&times;</button>
-            <header class="tour-detail__header">
-                <p class="eyebrow">Tour insight</p>
-                <h3 id="detailTitle" class="detail-title"></h3>
-                <p id="detailLocation" class="detail-location"></p>
-            </header>
-            <p id="detailDescription" class="detail-description"></p>
-            <dl class="detail-meta">
-                <div>
-                    <dt>Hosted by</dt>
-                    <dd id="detailOperator"></dd>
-                </div>
-                <div>
-                    <dt>Starting</dt>
-                    <dd id="detailAvailability"></dd>
-                </div>
-                <div>
-                    <dt>Duration</dt>
-                    <dd id="detailDuration"></dd>
-                </div>
-                <div>
-                    <dt>Capacity</dt>
-                    <dd id="detailCapacity"></dd>
-                </div>
-                <div>
-                    <dt>Price per guest</dt>
-                    <dd id="detailPrice"></dd>
-                </div>
-            </dl>
-
-            <section class="booking-panel">
-                <h4>Book this tour</h4>
-                <p id="bookingHelper" class="helper-text"></p>
-                <form id="bookingForm" class="booking-form">
-                    <label for="bookingPeople">Group size</label>
-                    <input id="bookingPeople" name="people" type="number" min="1" value="1" required />
-
-                    <label for="bookingDate">Preferred date &amp; time</label>
-                    <input id="bookingDate" name="date" type="datetime-local" required />
-
-                    <div class="booking-total">
-                        <span>Total</span>
-                        <strong id="bookingTotal">$0.00</strong>
-                    </div>
-
-                    <button id="bookingSubmit" class="primary" type="submit">Request booking</button>
-                    <p id="bookingStatus" class="status" role="status"></p>
-                </form>
-            </section>
-        </div>
-    </section>
 
     <script src="app.js" type="module"></script>
 </body>
