@@ -30,8 +30,9 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/", "/index.html", "/styles.css", "/app.js", "/favicon.ico").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/tours", "/api/tours/**").hasAnyRole("CUSTOMER", "OPERATOR")
+                        .requestMatchers(HttpMethod.GET, "/api/tours", "/api/tours/**").permitAll()
                         .requestMatchers("/api/tours/**").hasRole("OPERATOR")
                         .requestMatchers(HttpMethod.POST, "/api/bookings/**").hasRole("CUSTOMER")
                         .requestMatchers(HttpMethod.GET, "/api/bookings/**").hasRole("OPERATOR")

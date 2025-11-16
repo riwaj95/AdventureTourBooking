@@ -7,114 +7,68 @@
     <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <header class="app-header">
-        <h1>Adventure Tour Booking</h1>
-        <div id="userBadge" class="user-badge hidden"></div>
-        <button id="logoutButton" class="logout-button hidden">Log out</button>
+    <header class="site-header">
+        <div class="brand">
+            <p class="eyebrow">Adventure Tour Booking</p>
+            <h1>Pick your next guided escape</h1>
+            <p class="lede">Every time the Spring Boot app starts we preload five curated tours so you can explore immediately.</p>
+        </div>
+        <div class="login">
+            <button id="loginToggle" class="login-button" type="button">Log in</button>
+            <div id="loginPanel" class="login-panel hidden" aria-live="polite">
+                <form id="loginForm" class="login-form">
+                    <label for="loginEmail">Email</label>
+                    <input id="loginEmail" name="email" type="email" autocomplete="email" required />
+
+                    <label for="loginPassword">Password</label>
+                    <input id="loginPassword" name="password" type="password" autocomplete="current-password" required />
+
+                    <button type="submit" class="primary">Sign in</button>
+                </form>
+                <p class="helper-text">
+                    Demo traveller: <strong>explorer@example.com</strong><br />
+                    Demo operator: <strong>guide@adventure.com</strong><br />
+                    Password: <strong>password</strong>
+                </p>
+                <p id="loginStatus" class="status" role="status"></p>
+            </div>
+        </div>
     </header>
 
-    <main id="appRoot">
-        <section id="loginView" class="card login-card">
-            <h2>Welcome back</h2>
-            <p class="hint">Sign in as a traveller to book tours or as an operator to manage them.</p>
-            <form id="loginForm" class="form">
-                <label class="form-label" for="username">Display name</label>
-                <input id="username" type="text" required placeholder="e.g. Alex" />
-
-                <fieldset class="role-picker">
-                    <legend>Sign in as</legend>
-                    <label><input type="radio" name="role" value="traveller" checked /> Traveller</label>
-                    <label><input type="radio" name="role" value="operator" /> Operator</label>
-                </fieldset>
-
-                <button type="submit" class="primary">Continue</button>
-            </form>
-        </section>
-
-        <section id="travellerView" class="hidden">
-            <h2>Available tours</h2>
-            <div id="tourList" class="tour-grid"></div>
-        </section>
-
-        <section id="operatorView" class="hidden">
-            <div class="operator-grid">
-                <section class="card">
-                    <h2>Create a new tour</h2>
-                    <form id="createTourForm" class="form">
-                        <label class="form-label" for="tourName">Tour name</label>
-                        <input id="tourName" name="name" required placeholder="Northern Lights Expedition" />
-
-                        <label class="form-label" for="tourLocation">Location</label>
-                        <input id="tourLocation" name="location" required placeholder="Reykjavík, Iceland" />
-
-                        <label class="form-label" for="tourPrice">Price per person ($)</label>
-                        <input id="tourPrice" name="price" type="number" min="0" step="1" required />
-
-                        <label class="form-label" for="tourCapacity">Spots available</label>
-                        <input id="tourCapacity" name="capacity" type="number" min="1" step="1" required />
-
-                        <label class="form-label" for="tourDescription">Description</label>
-                        <textarea id="tourDescription" name="description" rows="3" placeholder="Brief summary"></textarea>
-
-                        <button type="submit" class="primary">Publish tour</button>
-                    </form>
-                </section>
-
-                <section class="card">
-                    <h2>Published tours</h2>
-                    <ul id="operatorTours" class="list"></ul>
-                </section>
-
-                <section class="card span-two">
-                    <h2>Bookings</h2>
-                    <div id="bookingEmptyState" class="empty-state hidden">No bookings yet. Travellers will appear here as they reserve tours.</div>
-                    <table id="bookingTable" class="table hidden">
-                        <thead>
-                            <tr>
-                                <th>Traveller</th>
-                                <th>Tour</th>
-                                <th>Date</th>
-                                <th>Group size</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </section>
+    <main class="content">
+        <section class="tours">
+            <div class="section-heading">
+                <h2>Available tours</h2>
+                <p>Browse the itinerary highlights below. No login is required to look around.</p>
             </div>
+            <div id="tourList" class="tour-list" aria-live="polite"></div>
         </section>
     </main>
 
     <template id="tourCardTemplate">
-        <article class="card tour-card">
-            <div class="tour-card__body">
-                <h3 class="tour-card__title"></h3>
-                <p class="tour-card__location"></p>
-                <p class="tour-card__description"></p>
-                <div class="tour-card__meta">
-                    <span class="price"></span>
-                    <span class="capacity"></span>
-                </div>
+        <article class="tour-card">
+            <div>
+                <h3 class="tour-title"></h3>
+                <p class="tour-location"></p>
+                <p class="tour-description"></p>
             </div>
-            <button class="primary">Book this tour</button>
-            <form class="booking-form hidden">
-                <label>
-                    Preferred date
-                    <input type="date" name="date" required />
-                </label>
-                <label>
-                    Travellers
-                    <input type="number" name="groupSize" min="1" step="1" required />
-                </label>
-                <div class="booking-actions">
-                    <button type="submit" class="primary">Confirm booking</button>
-                    <button type="button" class="ghost cancel">Cancel</button>
+            <dl class="tour-meta">
+                <div>
+                    <dt>Price</dt>
+                    <dd class="tour-price"></dd>
                 </div>
-            </form>
+                <div>
+                    <dt>Capacity</dt>
+                    <dd class="tour-capacity"></dd>
+                </div>
+                <div>
+                    <dt>Duration</dt>
+                    <dd class="tour-duration"></dd>
+                </div>
+            </dl>
         </article>
     </template>
 
-    <script src="app.js"></script>
+    <script src="app.js" type="module"></script>
 </body>
 </html>
