@@ -1,288 +1,163 @@
-const STORAGE_KEYS = {
-    USER: "atb:user",
-    TOURS: "atb:tours",
-    BOOKINGS: "atb:bookings",
-};
+const tourList = document.querySelector('#tourList');
+const loginToggle = document.querySelector('#loginToggle');
+const loginPanel = document.querySelector('#loginPanel');
+const loginForm = document.querySelector('#loginForm');
+const loginStatus = document.querySelector('#loginStatus');
+const loginEmail = document.querySelector('#loginEmail');
+let currentUser = null;
 
-const createId = () => (typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`);
-
-const defaultTours = [
+const demoTours = [
     {
-        id: createId(),
-        name: "Sunset Kayak Adventure",
-        location: "Vancouver, Canada",
-        price: 120,
-        capacity: 12,
-        description: "Paddle along the coastline at golden hour with a certified guide and warm beverages included.",
-        createdAt: Date.now(),
+        title: 'Misty Mountain Hike',
+        location: 'Aspen, USA',
+        description: 'Start your morning above the clouds with a gentle hike to a hidden alpine lake.',
+        price: 129,
+        maxCapacity: 14,
+        durationHours: 5,
     },
     {
-        id: createId(),
-        name: "Sahara Stargazing Trek",
-        location: "Merzouga, Morocco",
-        price: 240,
-        capacity: 8,
-        description: "Ride across the dunes on camelback before camping under the clearest night skies imaginable.",
-        createdAt: Date.now(),
+        title: 'Rainforest River Kayak',
+        location: 'Leticia, Colombia',
+        description: 'Glide through lush mangroves while spotting parrots, sloths and river dolphins.',
+        price: 189,
+        maxCapacity: 10,
+        durationHours: 4,
     },
     {
-        id: createId(),
-        name: "Patagonia Glacier Hike",
-        location: "El Calafate, Argentina",
-        price: 320,
-        capacity: 10,
-        description: "Strap on crampons for a guided exploration of the Perito Moreno glacier and its ice caves.",
-        createdAt: Date.now(),
+        title: 'Volcanic Sunset Jeep Ride',
+        location: 'Santorini, Greece',
+        description: 'Bounce across black-sand trails before sharing a picnic on the caldera rim.',
+        price: 159,
+        maxCapacity: 12,
+        durationHours: 3,
+    },
+    {
+        title: 'Nordic Fjord Cycling',
+        location: 'Ålesund, Norway',
+        description: 'Cycle quiet coastal roads and hop ferries between islands.',
+        price: 210,
+        maxCapacity: 8,
+        durationHours: 6,
+    },
+    {
+        title: 'Red Desert Stars',
+        location: 'Merzouga, Morocco',
+        description: 'An overnight camel caravan with astronomer-led stargazing in the quiet dunes.',
+        price: 275,
+        maxCapacity: 6,
+        durationHours: 12,
     },
 ];
 
-function loadState(key, fallback) {
+const priceFormatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 2,
+});
+
+function togglePanel(forceState) {
+    const willShow = typeof forceState === 'boolean' ? forceState : loginPanel.classList.contains('hidden');
+    loginPanel.classList.toggle('hidden', !willShow);
+    if (willShow) {
+        loginEmail.focus();
+    }
+}
+
+function closePanelOnOutsideClick(event) {
+    if (!loginPanel.contains(event.target) && event.target !== loginToggle) {
+        loginPanel.classList.add('hidden');
+    }
+}
+
+document.addEventListener('click', closePanelOnOutsideClick);
+loginToggle.addEventListener('click', () => togglePanel());
+
+function updateLoginButton() {
+    loginToggle.textContent = currentUser ? `Hi, ${currentUser.name}` : 'Log in';
+}
+
+async function loadTours() {
+    tourList.innerHTML = '<p class="state">Loading tours…</p>';
     try {
-        const raw = localStorage.getItem(key);
-        return raw ? JSON.parse(raw) : fallback;
+        const response = await fetch('/api/tours');
+        if (!response.ok) {
+            throw new Error('Unable to fetch tours.');
+        }
+        const tours = await response.json();
+        renderTours(tours);
     } catch (error) {
-        console.error("Failed to parse state", error);
-        return fallback;
+        renderTours(demoTours);
+        const notice = document.createElement('p');
+        notice.className = 'state error';
+        notice.textContent = `${error.message} Showing demo data instead.`;
+        tourList.prepend(notice);
     }
 }
 
-function saveState(key, value) {
-    localStorage.setItem(key, JSON.stringify(value));
-}
-
-const state = {
-    user: loadState(STORAGE_KEYS.USER, null),
-    tours: loadState(STORAGE_KEYS.TOURS, defaultTours),
-    bookings: loadState(STORAGE_KEYS.BOOKINGS, []),
-};
-
-const elements = {
-    loginView: document.querySelector("#loginView"),
-    travellerView: document.querySelector("#travellerView"),
-    operatorView: document.querySelector("#operatorView"),
-    loginForm: document.querySelector("#loginForm"),
-    createTourForm: document.querySelector("#createTourForm"),
-    tourList: document.querySelector("#tourList"),
-    operatorTours: document.querySelector("#operatorTours"),
-    bookingTable: document.querySelector("#bookingTable"),
-    bookingEmptyState: document.querySelector("#bookingEmptyState"),
-    bookingTableBody: document.querySelector("#bookingTable tbody"),
-    userBadge: document.querySelector("#userBadge"),
-    logoutButton: document.querySelector("#logoutButton"),
-};
-
-function setView(role) {
-    elements.loginView.classList.toggle("hidden", Boolean(role));
-    elements.travellerView.classList.toggle("hidden", role !== "traveller");
-    elements.operatorView.classList.toggle("hidden", role !== "operator");
-    elements.logoutButton.classList.toggle("hidden", !role);
-    elements.userBadge.classList.toggle("hidden", !role);
-}
-
-function renderUserBadge() {
-    if (!state.user) return;
-    elements.userBadge.textContent = `${state.user.name} · ${state.user.role}`;
-}
-
-function sortTours(tours) {
-    return [...tours].sort((a, b) => b.createdAt - a.createdAt);
-}
-
-function renderTours() {
-    elements.tourList.innerHTML = "";
-    const template = document.querySelector("#tourCardTemplate");
-
-    sortTours(state.tours).forEach((tour) => {
-        const card = template.content.firstElementChild.cloneNode(true);
-        card.querySelector(".tour-card__title").textContent = tour.name;
-        card.querySelector(".tour-card__location").textContent = tour.location;
-        card.querySelector(".tour-card__description").textContent = tour.description || "";
-        card.querySelector(".price").textContent = `$${tour.price} / person`;
-        card.querySelector(".capacity").textContent = `${tour.capacity} spots`;
-
-        const bookButton = card.querySelector("button.primary");
-        const bookingForm = card.querySelector(".booking-form");
-        const cancelButton = card.querySelector(".booking-form .cancel");
-
-        bookButton.addEventListener("click", () => {
-            bookingForm.classList.toggle("hidden", false);
-            bookButton.classList.add("hidden");
-        });
-
-        cancelButton.addEventListener("click", () => {
-            bookingForm.reset();
-            bookingForm.classList.add("hidden");
-            bookButton.classList.remove("hidden");
-        });
-
-        bookingForm.addEventListener("submit", (event) => {
-            event.preventDefault();
-            const formData = new FormData(bookingForm);
-            const booking = {
-                id: createId(),
-                travellerName: state.user.name,
-                tourId: tour.id,
-                date: formData.get("date"),
-                groupSize: Number(formData.get("groupSize")),
-                status: "pending",
-                createdAt: Date.now(),
-            };
-
-            state.bookings.push(booking);
-            saveState(STORAGE_KEYS.BOOKINGS, state.bookings);
-            renderBookings();
-
-            bookingForm.reset();
-            bookingForm.classList.add("hidden");
-            bookButton.classList.remove("hidden");
-        });
-
-        elements.tourList.appendChild(card);
-    });
-}
-
-function renderOperatorTours() {
-    elements.operatorTours.innerHTML = "";
-    sortTours(state.tours).forEach((tour) => {
-        const item = document.createElement("li");
-        item.innerHTML = `
-            <strong>${tour.name}</strong>
-            <span>${tour.location}</span>
-            <span>$${tour.price} · ${tour.capacity} spots</span>
-        `;
-        elements.operatorTours.appendChild(item);
-    });
-}
-
-function renderBookings() {
-    const hasBookings = state.bookings.length > 0;
-    elements.bookingEmptyState.classList.toggle("hidden", hasBookings);
-    elements.bookingTable.classList.toggle("hidden", !hasBookings);
-
-    if (!hasBookings) {
-        elements.bookingTableBody.innerHTML = "";
+function renderTours(tours) {
+    if (!tours.length) {
+        tourList.innerHTML = '<p class="state">No tours available yet.</p>';
         return;
     }
 
-    elements.bookingTableBody.innerHTML = "";
-    const tourMap = Object.fromEntries(state.tours.map((tour) => [tour.id, tour]));
+    const template = document.querySelector('#tourCardTemplate');
+    const fragment = document.createDocumentFragment();
 
-    state.bookings
-        .slice()
-        .sort((a, b) => b.createdAt - a.createdAt)
-        .forEach((booking) => {
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td>${booking.travellerName}</td>
-                <td>${tourMap[booking.tourId]?.name ?? "Unknown"}</td>
-                <td>${booking.date}</td>
-                <td>${booking.groupSize}</td>
-                <td><span class="badge" data-status="${booking.status}">${booking.status}</span></td>
-                <td class="actions"></td>
-            `;
+    tours.forEach((tour) => {
+        const node = template.content.firstElementChild.cloneNode(true);
+        node.querySelector('.tour-title').textContent = tour.title;
+        node.querySelector('.tour-location').textContent = tour.location || 'Location TBA';
+        node.querySelector('.tour-description').textContent = tour.description || 'Stay tuned for more details.';
 
-            const actionsCell = row.querySelector(".actions");
-            [
-                { label: "Confirm", status: "confirmed" },
-                { label: "Cancel", status: "cancelled" },
-                { label: "Reset", status: "pending" },
-            ].forEach(({ label, status }) => {
-                const button = document.createElement("button");
-                button.textContent = label;
-                button.className = "ghost";
-                button.addEventListener("click", () => updateBookingStatus(booking.id, status));
-                actionsCell.appendChild(button);
-            });
+        const priceValue = Number(tour.price);
+        node.querySelector('.tour-price').textContent = Number.isFinite(priceValue)
+            ? priceFormatter.format(priceValue)
+            : tour.price;
+        node.querySelector('.tour-capacity').textContent = tour.maxCapacity ? `${tour.maxCapacity} guests` : 'Flexible';
+        node.querySelector('.tour-duration').textContent = tour.durationHours ? `${tour.durationHours} hrs` : 'Custom';
+        fragment.appendChild(node);
+    });
 
-            elements.bookingTableBody.appendChild(row);
-        });
+    tourList.innerHTML = '';
+    tourList.appendChild(fragment);
 }
 
-function updateBookingStatus(id, status) {
-    const booking = state.bookings.find((item) => item.id === id);
-    if (!booking) return;
-    booking.status = status;
-    saveState(STORAGE_KEYS.BOOKINGS, state.bookings);
-    renderBookings();
-}
-
-function handleLogin(event) {
+async function handleLogin(event) {
     event.preventDefault();
-    const formData = new FormData(elements.loginForm);
-    const name = formData.get("username")?.trim();
-    const role = formData.get("role");
+    loginStatus.textContent = 'Signing in…';
+    loginStatus.className = 'status';
 
-    if (!name) {
-        alert("Please enter your display name");
-        return;
-    }
-
-    state.user = { name, role };
-    saveState(STORAGE_KEYS.USER, state.user);
-
-    setView(role);
-    renderUserBadge();
-    renderTours();
-    renderOperatorTours();
-    renderBookings();
-}
-
-function handleLogout() {
-    state.user = null;
-    saveState(STORAGE_KEYS.USER, state.user);
-    setView(null);
-}
-
-function handleCreateTour(event) {
-    event.preventDefault();
-    const formData = new FormData(elements.createTourForm);
-    const tour = {
-        id: createId(),
-        name: (formData.get("name") || "").trim(),
-        location: (formData.get("location") || "").trim(),
-        price: Number(formData.get("price")),
-        capacity: Number(formData.get("capacity")),
-        description: (formData.get("description") || "").trim(),
-        createdAt: Date.now(),
+    const formData = new FormData(loginForm);
+    const payload = {
+        email: formData.get('email'),
+        password: formData.get('password'),
     };
 
-    if (!tour.name || !tour.location || !tour.price || !tour.capacity) {
-        alert("Please fill in all required fields");
-        return;
-    }
+    try {
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        });
 
-    state.tours.push(tour);
-    saveState(STORAGE_KEYS.TOURS, state.tours);
-    elements.createTourForm.reset();
-    renderTours();
-    renderOperatorTours();
-}
+        if (!response.ok) {
+            throw new Error('Login failed. Double-check the demo credentials.');
+        }
 
-function hydrateFromStorage() {
-    if (state.tours.length === 0) {
-        state.tours = defaultTours;
-        saveState(STORAGE_KEYS.TOURS, state.tours);
-    }
-
-    if (state.user) {
-        setView(state.user.role);
-        renderUserBadge();
-    }
-
-    if (state.user?.role === "traveller") {
-        renderTours();
-    }
-
-    if (state.user?.role === "operator") {
-        renderTours();
-        renderOperatorTours();
-        renderBookings();
+        currentUser = await response.json();
+        loginStatus.textContent = `Signed in as ${currentUser.name}`;
+        loginStatus.classList.add('success');
+        updateLoginButton();
+        setTimeout(() => togglePanel(false), 900);
+    } catch (error) {
+        loginStatus.textContent = error.message;
+        loginStatus.classList.add('error');
+        currentUser = null;
+        updateLoginButton();
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    hydrateFromStorage();
-    elements.loginForm.addEventListener("submit", handleLogin);
-    elements.logoutButton.addEventListener("click", handleLogout);
-    elements.createTourForm.addEventListener("submit", handleCreateTour);
-});
+loginForm.addEventListener('submit', handleLogin);
+loadTours();
