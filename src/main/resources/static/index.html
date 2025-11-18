@@ -45,8 +45,52 @@
         </section>
     </main>
 
+    <div
+        id="tourDetailOverlay"
+        class="tour-detail-overlay hidden"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="tourDetailTitle"
+    >
+        <article class="tour-detail-card" role="document">
+            <button id="tourDetailClose" class="icon-button" type="button" aria-label="Close tour details">
+                ×
+            </button>
+            <p id="tourDetailLocation" class="detail-eyebrow"></p>
+            <h3 id="tourDetailTitle"></h3>
+            <p id="tourDetailDescription" class="detail-description"></p>
+
+            <dl class="tour-meta tour-detail-meta">
+                <div>
+                    <dt>Price</dt>
+                    <dd id="tourDetailPrice"></dd>
+                </div>
+                <div>
+                    <dt>Capacity</dt>
+                    <dd id="tourDetailCapacity"></dd>
+                </div>
+                <div>
+                    <dt>Duration</dt>
+                    <dd id="tourDetailDuration"></dd>
+                </div>
+            </dl>
+
+            <div class="detail-chips">
+                <span id="tourDetailActivity" class="chip"></span>
+                <span id="tourDetailGear" class="chip"></span>
+            </div>
+
+            <div class="detail-highlights">
+                <h4>Trip highlights</h4>
+                <ul id="tourDetailHighlights"></ul>
+            </div>
+
+            <p id="tourDetailTip" class="detail-tip"></p>
+        </article>
+    </div>
+
     <template id="tourCardTemplate">
-        <article class="tour-card">
+        <article class="tour-card" tabindex="0" role="button" aria-label="View tour details">
             <div>
                 <h3 class="tour-title"></h3>
                 <p class="tour-location"></p>
