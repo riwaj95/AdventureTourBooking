@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 public record TourResponse(
         Long id,
         Long operatorId,
-        String operatorName,
         String title,
         String description,
         BigDecimal price,
@@ -23,7 +22,6 @@ public record TourResponse(
         return new TourResponse(
                 tour.getId(),
                 tour.getOperator().getId(),
-                tour.getOperator().getName(),
                 tour.getTitle(),
                 tour.getDescription(),
                 tour.getPrice(),

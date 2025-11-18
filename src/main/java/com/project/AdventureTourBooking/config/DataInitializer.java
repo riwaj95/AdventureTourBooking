@@ -33,9 +33,6 @@ public class DataInitializer implements CommandLineRunner {
         User operator = userRepository.findByEmail("guide@adventure.com")
                 .orElseGet(() -> createUser("guide@adventure.com", "Mountain Guide", UserRole.OPERATOR));
 
-        userRepository.findByEmail("explorer@example.com")
-                .orElseGet(() -> createUser("explorer@example.com", "Avid Explorer", UserRole.CUSTOMER));
-
         if (tourRepository.count() == 0) {
             List<Tour> tours = List.of(
                     createTour(operator,
