@@ -6,6 +6,7 @@ const loginStatus = document.querySelector('#loginStatus');
 const loginEmail = document.querySelector('#loginEmail');
 const tourDetailOverlay = document.querySelector('#tourDetailOverlay');
 const tourDetailClose = document.querySelector('#tourDetailClose');
+const logoutButton = document.querySelector('#logoutButton');
 const detailTitle = document.querySelector('#tourDetailTitle');
 const detailLocation = document.querySelector('#tourDetailLocation');
 const detailDescription = document.querySelector('#tourDetailDescription');
@@ -16,6 +17,7 @@ const detailActivity = document.querySelector('#tourDetailActivity');
 const detailGear = document.querySelector('#tourDetailGear');
 const detailHighlights = document.querySelector('#tourDetailHighlights');
 const detailTip = document.querySelector('#tourDetailTip');
+const OPERATOR_SESSION_KEY = 'operatorSession';
 let currentUser = null;
 let lastFocusedCard = null;
 
@@ -148,7 +150,60 @@ document.addEventListener('click', closePanelOnOutsideClick);
 loginToggle.addEventListener('click', () => togglePanel());
 
 function updateLoginButton() {
-    loginToggle.textContent = currentUser ? `Hi, ${currentUser.name}` : 'Log in';
+    if (currentUser) {
+        const prefix = currentUser.role === 'OPERATOR' ? 'Operator' : 'Hi';
+        loginToggle.textContent = `${prefix}, ${currentUser.name}`;
+        if (logoutButton) {
+            logoutButton.classList.remove('hidden');
+        }
+    } else {
+        loginToggle.textContent = 'Log in';
+        if (logoutButton) {
+            logoutButton.classList.add('hidden');
+        }
+    }
+}
+
+function persistOperatorSession(user, password) {
+    if (user.role !== 'OPERATOR') {
+        localStorage.removeItem(OPERATOR_SESSION_KEY);
+        return user;
+    }
+
+    const authHeader = `Basic ${btoa(`${user.email}:${password}`)}`;
+    const enrichedUser = { ...user, authHeader };
+    localStorage.setItem(OPERATOR_SESSION_KEY, JSON.stringify(enrichedUser));
+    return enrichedUser;
+}
+
+function restoreOperatorSession() {
+    const storedValue = localStorage.getItem(OPERATOR_SESSION_KEY);
+    if (!storedValue) {
+        return;
+    }
+
+    try {
+        const parsed = JSON.parse(storedValue);
+        if (parsed && parsed.role === 'OPERATOR') {
+            currentUser = parsed;
+            updateLoginButton();
+        } else {
+            localStorage.removeItem(OPERATOR_SESSION_KEY);
+        }
+    } catch (error) {
+        console.error('Unable to restore operator session', error);
+        localStorage.removeItem(OPERATOR_SESSION_KEY);
+    }
+}
+
+function handleLogout() {
+    currentUser = null;
+    localStorage.removeItem(OPERATOR_SESSION_KEY);
+    loginForm.reset();
+    loginStatus.textContent = 'Signed out.';
+    loginStatus.className = 'status';
+    updateLoginButton();
+    togglePanel(false);
 }
 
 async function loadTours() {
@@ -270,20 +325,33 @@ async function handleLogin(event) {
             throw new Error('Login failed. Double-check the demo credentials.');
         }
 
-        currentUser = await response.json();
-        loginStatus.textContent = `Signed in as ${currentUser.name}`;
+        const authenticatedUser = await response.json();
+        currentUser = persistOperatorSession(authenticatedUser, payload.password);
+        const isOperator = currentUser.role === 'OPERATOR';
+        loginStatus.textContent = isOperator
+            ? `Signed in as ${currentUser.name}. Redirecting to operator tools…`
+            : `Signed in as ${currentUser.name}`;
         loginStatus.classList.add('success');
         updateLoginButton();
-        setTimeout(() => togglePanel(false), 900);
+        setTimeout(() => {
+            togglePanel(false);
+            if (isOperator) {
+                window.location.href = '/operator.html';
+            }
+        }, isOperator ? 800 : 900);
     } catch (error) {
         loginStatus.textContent = error.message;
         loginStatus.classList.add('error');
         currentUser = null;
         updateLoginButton();
+        localStorage.removeItem(OPERATOR_SESSION_KEY);
     }
 }
 
 loginForm.addEventListener('submit', handleLogin);
+if (logoutButton) {
+    logoutButton.addEventListener('click', handleLogout);
+}
 tourDetailClose.addEventListener('click', closeTourDetail);
 tourDetailOverlay.addEventListener('click', (event) => {
     if (event.target === tourDetailOverlay) {
@@ -295,4 +363,5 @@ document.addEventListener('keydown', (event) => {
         closeTourDetail();
     }
 });
+restoreOperatorSession();
 loadTours();

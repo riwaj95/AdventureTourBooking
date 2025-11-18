@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Operator Console · Adventure Tour Booking</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="operator.css" />
+</head>
+<body class="operator-body">
+<header class="operator-header">
+    <div>
+        <p class="eyebrow">Operator workspace</p>
+        <h1>Manage your published adventures</h1>
+        <p class="lede">Create new departures, adjust pricing, or retire outdated listings in a single place.</p>
+    </div>
+    <div class="operator-account">
+        <p id="operatorGreeting" class="account-name"></p>
+        <button id="operatorLogout" type="button" class="secondary">Log out</button>
+    </div>
+</header>
+<main class="operator-main">
+    <section class="operator-panel">
+        <h2>Create a new tour</h2>
+        <form id="createTourForm" class="tour-form">
+            <label>
+                Title
+                <input type="text" name="title" required />
+            </label>
+            <label>
+                Description
+                <textarea name="description" rows="3" placeholder="Optional short teaser"></textarea>
+            </label>
+            <div class="form-grid">
+                <label>
+                    Price (USD)
+                    <input type="number" name="price" step="0.01" min="0" required />
+                </label>
+                <label>
+                    Max capacity
+                    <input type="number" name="maxCapacity" min="1" required />
+                </label>
+            </div>
+            <div class="form-grid">
+                <label>
+                    Location
+                    <input type="text" name="location" required />
+                </label>
+                <label>
+                    Duration (hours)
+                    <input type="number" name="durationHour" min="1" required />
+                </label>
+            </div>
+            <label>
+                Available from
+                <input type="datetime-local" name="availableFrom" />
+            </label>
+            <button type="submit" class="primary full-width">Save tour</button>
+            <p id="createStatus" class="status" role="status"></p>
+        </form>
+    </section>
+    <section class="operator-panel">
+        <div class="section-heading">
+            <h2>Your tours</h2>
+            <p>All itineraries tied to your operator account.</p>
+        </div>
+        <p id="operatorStatus" class="status" role="status"></p>
+        <div id="operatorTourList" class="operator-tour-list" aria-live="polite"></div>
+    </section>
+</main>
+<script src="operator.js" type="module"></script>
+</body>
+</html>

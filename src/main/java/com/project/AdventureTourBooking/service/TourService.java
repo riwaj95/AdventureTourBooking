@@ -58,6 +58,29 @@ public class TourService {
         return tourRepository.save(tour);
     }
 
+    @Transactional
+    public Tour updateTour(Long tourId, TourRequest request, Long operatorId) {
+        Tour existingTour = getTourById(tourId);
+        ensureOperatorOwnership(existingTour, operatorId);
+
+        existingTour.setTitle(request.title());
+        existingTour.setDescription(request.description());
+        existingTour.setPrice(request.price());
+        existingTour.setLocation(request.location());
+        existingTour.setMaxCapacity(request.maxCapacity());
+        existingTour.setDurationHours(request.durationHour());
+        existingTour.setAvailableFrom(request.availableFrom());
+
+        return tourRepository.save(existingTour);
+    }
+
+    @Transactional
+    public void deleteTour(Long tourId, Long operatorId) {
+        Tour existingTour = getTourById(tourId);
+        ensureOperatorOwnership(existingTour, operatorId);
+        tourRepository.delete(existingTour);
+    }
+
     private User getOperator(Long operatorId) {
         User operator = userRepository.findById(operatorId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Operator not found"));
@@ -67,5 +90,11 @@ public class TourService {
         }
 
         return operator;
+    }
+
+    private void ensureOperatorOwnership(Tour tour, Long operatorId) {
+        if (!tour.getOperator().getId().equals(operatorId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Operators can only modify their own tours");
+        }
     }
 }

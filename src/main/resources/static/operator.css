@@ -1,0 +1,141 @@
+:root {
+    --operator-bg: #eef3ff;
+    --operator-surface: #ffffff;
+    --operator-border: #d8e1ff;
+}
+
+body.operator-body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--operator-bg);
+    color: #101828;
+}
+
+.operator-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: 2rem clamp(1rem, 5vw, 3rem);
+    background: var(--operator-surface);
+    border-bottom: 1px solid var(--operator-border);
+}
+
+.operator-account {
+    text-align: right;
+}
+
+.operator-account .account-name {
+    margin: 0 0 0.35rem;
+    font-weight: 600;
+}
+
+.operator-account .secondary {
+    width: auto;
+    padding-inline: 1.25rem;
+}
+
+.operator-main {
+    padding: clamp(1.5rem, 4vw, 3rem);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+    gap: 2rem;
+}
+
+.operator-panel {
+    background: var(--operator-surface);
+    border: 1px solid var(--operator-border);
+    border-radius: 1.25rem;
+    padding: 1.5rem;
+    box-shadow: 0 12px 30px rgba(15, 19, 36, 0.08);
+}
+
+.tour-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.tour-form label {
+    display: flex;
+    flex-direction: column;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #475467;
+    gap: 0.35rem;
+}
+
+.tour-form input,
+.tour-form textarea,
+.operator-tour-card input,
+.operator-tour-card textarea {
+    border: 1px solid var(--operator-border);
+    border-radius: 0.75rem;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.95rem;
+    font-family: inherit;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: 0.75rem;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.operator-tour-list {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.operator-tour-card {
+    border: 1px solid var(--operator-border);
+    border-radius: 1rem;
+    padding: 1rem;
+    background: #fefefe;
+}
+
+.operator-tour-card h3 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+}
+
+.operator-tour-card .tour-form {
+    margin-top: 0.5rem;
+}
+
+.button-row {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 0.75rem;
+}
+
+.button-row .secondary {
+    width: auto;
+}
+
+.danger {
+    background: #fee4e2;
+    color: #b42318;
+    border: 1px solid #fda29b;
+}
+
+.danger:hover {
+    background: #fdd1cb;
+}
+
+@media (max-width: 720px) {
+    .operator-header {
+        flex-direction: column;
+        text-align: left;
+    }
+
+    .operator-account {
+        text-align: left;
+    }
+}
