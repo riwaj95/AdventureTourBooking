@@ -14,6 +14,8 @@
             <p class="lede">Every time the Spring Boot app starts we preload five curated tours so you can explore immediately.</p>
         </div>
         <div class="login">
+            <button id="operatorConsoleButton" class="primary hidden" type="button">Open operator console</button>
+            <button id="operatorHeaderLogout" class="secondary hidden" type="button">Log out</button>
             <button id="loginToggle" class="login-button" type="button">Log in</button>
             <div id="loginPanel" class="login-panel hidden" aria-live="polite">
                 <form id="loginForm" class="login-form">
@@ -37,7 +39,7 @@
     </header>
 
     <main class="content">
-        <section class="tours">
+        <section id="allTours" class="tours">
             <div class="section-heading">
                 <h2>Available tours</h2>
                 <p>Browse the itinerary highlights below. No login is required to look around.</p>

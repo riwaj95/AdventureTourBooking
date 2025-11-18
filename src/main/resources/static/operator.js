@@ -36,7 +36,7 @@ function loadSession() {
 }
 
 function redirectHome() {
-    window.location.href = '/';
+    window.location.href = '/#allTours';
 }
 
 function authHeaders() {

@@ -7,6 +7,8 @@ const loginEmail = document.querySelector('#loginEmail');
 const tourDetailOverlay = document.querySelector('#tourDetailOverlay');
 const tourDetailClose = document.querySelector('#tourDetailClose');
 const logoutButton = document.querySelector('#logoutButton');
+const operatorConsoleButton = document.querySelector('#operatorConsoleButton');
+const operatorHeaderLogout = document.querySelector('#operatorHeaderLogout');
 const detailTitle = document.querySelector('#tourDetailTitle');
 const detailLocation = document.querySelector('#tourDetailLocation');
 const detailDescription = document.querySelector('#tourDetailDescription');
@@ -149,17 +151,38 @@ function closePanelOnOutsideClick(event) {
 document.addEventListener('click', closePanelOnOutsideClick);
 loginToggle.addEventListener('click', () => togglePanel());
 
+function toggleOperatorShortcut(shouldShow) {
+    if (operatorConsoleButton) {
+        operatorConsoleButton.classList.toggle('hidden', !shouldShow);
+    }
+    if (operatorHeaderLogout) {
+        operatorHeaderLogout.classList.toggle('hidden', !shouldShow);
+    }
+    if (loginToggle) {
+        loginToggle.classList.toggle('hidden', shouldShow);
+    }
+    if (shouldShow && loginPanel) {
+        loginPanel.classList.add('hidden');
+    }
+    if (logoutButton) {
+        logoutButton.classList.toggle('hidden', shouldShow || !currentUser);
+    }
+}
+
 function updateLoginButton() {
-    if (currentUser) {
-        const prefix = currentUser.role === 'OPERATOR' ? 'Operator' : 'Hi';
-        loginToggle.textContent = `${prefix}, ${currentUser.name}`;
-        if (logoutButton) {
-            logoutButton.classList.remove('hidden');
-        }
-    } else {
+    const isOperator = currentUser?.role === 'OPERATOR';
+    toggleOperatorShortcut(isOperator);
+
+    if (!loginToggle) {
+        return;
+    }
+
+    if (currentUser && !isOperator) {
+        loginToggle.textContent = `Hi, ${currentUser.name}`;
+    } else if (!currentUser) {
         loginToggle.textContent = 'Log in';
-        if (logoutButton) {
-            logoutButton.classList.add('hidden');
+        if (loginPanel) {
+            loginPanel.classList.add('hidden');
         }
     }
 }
@@ -351,6 +374,17 @@ async function handleLogin(event) {
 loginForm.addEventListener('submit', handleLogin);
 if (logoutButton) {
     logoutButton.addEventListener('click', handleLogout);
+}
+if (operatorConsoleButton) {
+    operatorConsoleButton.addEventListener('click', () => {
+        window.location.href = '/operator.html';
+    });
+}
+if (operatorHeaderLogout) {
+    operatorHeaderLogout.addEventListener('click', () => {
+        handleLogout();
+        window.location.hash = 'allTours';
+    });
 }
 tourDetailClose.addEventListener('click', closeTourDetail);
 tourDetailOverlay.addEventListener('click', (event) => {
