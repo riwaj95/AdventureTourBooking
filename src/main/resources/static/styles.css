@@ -121,6 +121,17 @@ body.modal-open {
     background: var(--accent-dark);
 }
 
+.secondary {
+    margin-top: 0.75rem;
+    width: 100%;
+    background: transparent;
+    border: 1px dashed var(--border);
+    border-radius: 0.6rem;
+    padding: 0.5rem 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
 .helper-text {
     margin: 0.75rem 0 0;
     font-size: 0.8rem;

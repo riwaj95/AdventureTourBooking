@@ -62,4 +62,23 @@ public class TourController {
                 .created(URI.create("/api/tours/" + response.id()))
                 .body(response);
     }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('OPERATOR')")
+    public TourResponse updateTour(
+            @PathVariable Long id,
+            @Valid @RequestBody TourRequest request,
+            Authentication authentication
+    ) {
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        return TourResponse.fromEntity(tourService.updateTour(id, request, principal.getId()));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('OPERATOR')")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteTour(@PathVariable Long id, Authentication authentication) {
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        tourService.deleteTour(id, principal.getId());
+    }
 }
