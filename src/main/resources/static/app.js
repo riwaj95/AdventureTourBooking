@@ -219,7 +219,15 @@ function restoreOperatorSession() {
     }
 }
 
-function handleLogout() {
+async function handleLogout() {
+    try {
+        await fetch('/api/auth/logout', {
+            method: 'POST',
+            credentials: 'same-origin',
+        });
+    } catch (error) {
+        console.warn('Logout request failed', error);
+    }
     currentUser = null;
     localStorage.removeItem(OPERATOR_SESSION_KEY);
     loginForm.reset();
@@ -373,7 +381,9 @@ async function handleLogin(event) {
 
 loginForm.addEventListener('submit', handleLogin);
 if (logoutButton) {
-    logoutButton.addEventListener('click', handleLogout);
+    logoutButton.addEventListener('click', () => {
+        handleLogout();
+    });
 }
 if (operatorConsoleButton) {
     operatorConsoleButton.addEventListener('click', () => {
@@ -381,8 +391,8 @@ if (operatorConsoleButton) {
     });
 }
 if (operatorHeaderLogout) {
-    operatorHeaderLogout.addEventListener('click', () => {
-        handleLogout();
+    operatorHeaderLogout.addEventListener('click', async () => {
+        await handleLogout();
         window.location.hash = 'allTours';
     });
 }
