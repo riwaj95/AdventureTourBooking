@@ -52,6 +52,18 @@ function jsonHeaders() {
     };
 }
 
+async function requestLogout(headers = {}) {
+    try {
+        await fetch('/api/auth/logout', {
+            method: 'POST',
+            headers,
+            credentials: 'same-origin',
+        });
+    } catch (error) {
+        console.warn('Logout request failed', error);
+    }
+}
+
 function formatPrice(value) {
     if (value === null || value === undefined) {
         return 'Custom pricing';
@@ -362,7 +374,8 @@ async function handleDeleteTour(id) {
 
 if (session) {
     greeting.textContent = `Signed in as ${session.name}`;
-    logoutButton.addEventListener('click', () => {
+    logoutButton.addEventListener('click', async () => {
+        await requestLogout(authHeaders());
         localStorage.removeItem(SESSION_KEY);
         redirectHome();
     });
